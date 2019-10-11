@@ -1,49 +1,30 @@
 /* eslint-disable prefer-spread */
+import classNames from 'classnames';
+import omit from 'omit.js';
+import * as PropTypes from 'prop-types';
+import RcTable, { INTERNAL_COL_DEFINE } from 'rc-table';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import omit from 'omit.js';
-import RcTable, { INTERNAL_COL_DEFINE } from 'rc-table';
-import * as PropTypes from 'prop-types';
-import classNames from 'classnames';
 import shallowEqual from 'shallowequal';
-import FilterDropdown from './filterDropdown';
-import createStore, { Store } from './createStore';
-import SelectionBox from './SelectionBox';
-import SelectionCheckboxAll from './SelectionCheckboxAll';
+import { CheckboxChangeEvent } from '../checkbox';
+import { ConfigConsumer, ConfigConsumerProps, RenderEmptyHandler } from '../config-provider';
+import Icon from '../icon';
+import LocaleReceiver from '../locale-provider/LocaleReceiver';
+import defaultLocale from '../locale/default';
+import Pagination from '../pagination';
+import { RadioChangeEvent } from '../radio';
+import Spin, { SpinProps } from '../spin';
+import TransButton from '../_util/transButton';
+import warning from '../_util/warning';
 import Column from './Column';
 import ColumnGroup from './ColumnGroup';
 import createBodyRow from './createBodyRow';
-import { flatArray, treeMap, flatFilter, normalizeColumns } from './util';
-import {
-  TableProps,
-  TableSize,
-  TableState,
-  TableComponents,
-  RowSelectionType,
-  TableLocale,
-  AdditionalCellProps,
-  ColumnProps,
-  CompareFn,
-  SortOrder,
-  TableStateFilters,
-  SelectionItemSelectFn,
-  SelectionInfo,
-  TableSelectWay,
-  TableRowSelection,
-  PaginationConfig,
-  PrepareParamsArgumentsReturn,
-  ExpandIconProps,
-} from './interface';
-import Pagination from '../pagination';
-import Icon from '../icon';
-import Spin, { SpinProps } from '../spin';
-import { RadioChangeEvent } from '../radio';
-import TransButton from '../_util/transButton';
-import { CheckboxChangeEvent } from '../checkbox';
-import LocaleReceiver from '../locale-provider/LocaleReceiver';
-import defaultLocale from '../locale/default';
-import { ConfigConsumer, ConfigConsumerProps, RenderEmptyHandler } from '../config-provider';
-import warning from '../_util/warning';
+import createStore, { Store } from './createStore';
+import FilterDropdown from './filterDropdown';
+import { AdditionalCellProps, ColumnProps, CompareFn, ExpandIconProps, PaginationConfig, PrepareParamsArgumentsReturn, RowSelectionType, SelectionInfo, SelectionItemSelectFn, SortOrder, TableComponents, TableLocale, TableProps, TableRowSelection, TableSelectWay, TableSize, TableState, TableStateFilters } from './interface';
+import SelectionBox from './SelectionBox';
+import SelectionCheckboxAll from './SelectionCheckboxAll';
+import { flatArray, flatFilter, normalizeColumns, treeMap } from './util';
 
 function noop() {}
 
@@ -66,14 +47,9 @@ function isSameColumn<T>(a: ColumnProps<T> | null, b: ColumnProps<T> | null) {
   if (a && b && a.key && a.key === b.key) {
     return true;
   }
-  return (
-    a === b ||
-    shallowEqual(a, b, (value: any, other: any) => {
-      if (typeof value === 'function' && typeof other === 'function') {
-        return value === other || value.toString() === other.toString();
-      }
-    })
-  );
+  let test1 = a === b;
+  let test2 = shallowEqual(a, b);
+  return test1 || test2;
 }
 
 const defaultPagination = {
